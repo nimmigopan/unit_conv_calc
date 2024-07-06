@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Conversion Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .converter {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            width: 300px;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group select,
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .input-group button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .input-group button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+        }
+        .result p {
+            font-size: 16px;
+        }
+    </style>
+    <script>
+        function convert() {
+            const input = parseFloat(document.getElementById("inputValue").value);
+            const fromUnit = document.getElementById("fromUnit").value;
+            const toUnit = document.getElementById("toUnit").value;
+            const result = document.getElementById("result");
+
+            if (isNaN(input)) {
+                result.textContent = "Please enter a valid number";
+                return;
+            }
+
+            const conversionFactors = {
+                // Length
+                "mm-m": 0.001, "cm-m": 0.01, "in-m": 0.0254, "ft-m": 0.3048, "yd-m": 0.9144, "mi-m": 1609.34,
+                // Area
+                "mm2-m2": 1e-6, "cm2-m2": 1e-4, "in2-m2": 0.00064516, "ft2-m2": 0.092903, "yd2-m2": 0.836127, "acre-m2": 4046.86, "hectare-m2": 10000,
+                // Volume
+                "mm3-m3": 1e-9, "cm3-m3": 1e-6, "in3-m3": 1.63871e-5, "ft3-m3": 0.0283168, "yd3-m3": 0.764555, "L-m3": 0.001, "mL-m3": 1e-6, "gal-m3": 0.00378541,
+                // Mass/Weight
+                "mg-kg": 1e-6, "g-kg": 0.001, "lb-kg": 0.453592, "oz-kg": 0.0283495, "ton-kg": 907.185,
+                // Temperature (simple conversion functions)
+                "C-F": (c) => c * 9/5 + 32, "F-C": (f) => (f - 32) * 5/9, "C-K": (c) => c + 273.15, "K-C": (k) => k - 273.15, "F-K": (f) => (f - 32) * 5/9 + 273.15, "K-F": (k) => (k - 273.15) * 9/5 + 32,
+                // Pressure
+                "Pa-bar": 1e-5, "kPa-bar": 0.01, "MPa-bar": 10, "psi-bar": 0.0689476, "atm-bar": 1.01325,
+                // Force
+                "N-kN": 0.001, "lbf-kN": 0.00444822, "kgf-kN": 0.00980665,
+                // Energy
+                "J-kJ": 0.001, "cal-kJ": 4.184e-3, "kcal-kJ": 4.184, "BTU-kJ": 1.05506,
+                // Power
+                "W-kW": 0.001, "hp-kW": 0.7457,
+                // Flow Rate
+                "m3/s-m3/s": 1, "ft3/s-m3/s": 0.0283168, "L/min-m3/s": 1.66667e-5, "GPM-m3/s": 6.30902e-5,
+                // Electrical Units
+                "V-V": 1, "mV-V": 0.001, "kV-V": 1000, "A-A": 1, "mA-A": 0.001, "kW-kW": 1, "MW-kW": 1000, "kWh-kWh": 1,
+                // Speed
+                "m/s-m/s": 1, "km/h-m/s": 0.277778, "mph-m/s": 0.44704, "ft/s-m/s": 0.3048,
+                // Time
+                "s-s": 1, "min-s": 60, "h-s": 3600, "days-s": 86400,
+                // Data Storage
+                "b-B": 1/8, "B-KB": 0.001, "KB-MB": 0.001, "MB-GB": 0.001, "GB-TB": 0.001,
+            };
+
+            let convertedValue;
+            const conversionKey = `${fromUnit}-${toUnit}`;
+            if (conversionFactors[conversionKey] !== undefined) {
+                const factor = conversionFactors[conversionKey];
+                convertedValue = typeof factor === 'function' ? factor(input) : input * factor;
+            } else {
+                convertedValue = "Conversion not supported";
+            }
+
+            result.textContent = `Converted Value: ${convertedValue}`;
+        }
+
+        function updateUnits(category) {
+            const units = {
+                length: ["mm", "cm", "m", "km", "in", "ft", "yd", "mi"],
+                area: ["mm2", "cm2", "m2", "in2", "ft2", "yd2", "acre", "hectare"],
+                volume: ["mm3", "cm3", "m3", "in3", "ft3", "yd3", "L", "mL", "gal"],
+                mass: ["mg", "g", "kg", "lb", "oz", "ton"],
+                temperature: ["C", "F", "K"],
+                pressure: ["Pa", "kPa", "MPa", "bar", "psi", "atm"],
+                force: ["N", "kN", "lbf", "kgf"],
+                energy: ["J", "kJ", "cal", "kcal", "BTU"],
+                power: ["W", "kW", "hp"],
+                flow: ["m3/s", "ft3/s", "L/min", "GPM"],
+                electrical: ["V", "mV", "kV", "A", "mA", "kW", "MW", "kWh"],
+                speed: ["m/s", "km/h", "mph", "ft/s"],
+                time: ["s", "min", "h", "days"],
+                data: ["b", "B", "KB", "MB", "GB", "TB"]
+            };
+
+            const fromUnit = document.getElementById("fromUnit");
+            const toUnit = document.getElementById("toUnit");
+
+            fromUnit.innerHTML = "";
+            toUnit.innerHTML = "";
+
+            units[category].forEach(unit => {
+                const option1 = document.createElement("option");
+                option1.value = unit;
+                option1.textContent = unit;
+                fromUnit.appendChild(option1);
+
+                const option2 = document.createElement("option");
+                option2.value = unit;
+                option2.textContent = unit;
+                toUnit.appendChild(option2);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1 style="text-align: center;">Unit Conversion Calculator</h1>
+    <div class="converter">
+        <div class="input-group">
+            <label for="unitCategory">Category:</label>
+            <select id="unitCategory" onchange="updateUnits(this.value)">
+                <option value="length">Length</option>
+                <option value="area">Area</option>
+                <option value="volume">Volume</option>
+                <option value="mass">Mass/Weight</option>
+                <option value="temperature">Temperature</option>
+                <option value="pressure">Pressure</option>
+                <option value="force">Force</option>
+                <option value="energy">Energy</option>
+                <option value="power">Power</option>
+                <option value="flow">Flow Rate</option>
+                <option value="electrical">Electrical Units</option>
+                <option value="speed">Speed</option>
+                <option value="time">Time</option>
+                <option value="data">Data Storage</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="inputValue">Enter Value:</label>
+            <input type="number" id="inputValue" placeholder="Enter value" required>
+        </div>
+        <div class="input-group">
+            <label for="fromUnit">From Unit:</label>
+            <select id="fromUnit"></select>
+        </div>
+        <div class="input-group">
+            <label for="toUnit">To Unit:</label>
+            <select id="toUnit"></select>
+        </div>
+        <div class="input-group">
+            <button onclick="convert()">Convert</button>
+        </div>
+        <div class="result">
+            <p id="result">Converted Value: </p>
+        </div>
+    </div>
+    <script>
+        // Initialize units
+        updateUnits("length");
+    </script>
+</body>
+</html>
